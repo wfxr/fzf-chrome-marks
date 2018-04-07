@@ -21,6 +21,7 @@ fi
 hash fzf &>/dev/null || exit 1
 
 ruby chrome-bookmarks-parser.rb "$bookmarks_path"  |
+  grep -E 'http[s]?'                               |
   fzf --ansi --multi --no-hscroll --tiebreak=begin |
   awk 'BEGIN { FS = "\t" } { print $2 }'           |
   xargs -n1 -I{} nohup $open_cmd {} &>/dev/null
