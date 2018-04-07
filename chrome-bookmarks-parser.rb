@@ -3,7 +3,7 @@
 
 require 'json'
 FILE = ARGV.first
-CJK  = /\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul}/
+CJK  = /\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul}|[［］，。！：；（）、？《》【】　]/
 
 def build parent, json
     name = [parent, json['name']].compact.join('/')
@@ -24,12 +24,16 @@ def trim str, width
     len = 0
     str.each_char.each_with_index do |char, idx|
         len += char =~ CJK ? 2 : 1
-        return str[0, idx] if len > width
+        if len == width
+            return str[0, idx]
+        elsif len > width
+            return str[0, idx - 1]
+        end
     end
     str
 end
 
-width = `tput cols`.strip.to_i / 2
+width = `tput cols`.strip.to_i * 3 / 5
 json  = JSON.load File.read File.expand_path FILE
 items = json['roots']
     .values_at(*%w(bookmark_bar synced other))
@@ -37,8 +41,8 @@ items = json['roots']
     .map { |e| build nil, e }
     .flatten
 
-items.each do |item|
+items.each_with_index do |item, idx|
     name = trim item[:name], width
-    puts [just(name, width),
-          item[:url]].join("\t\x1b[36m") + "\x1b[m"
+    puts ["#{'%4d' % (idx + 1)} #{just(name, width)}", item[:url]]
+        .join("\t\x1b[36m") + "\x1b[m"
 end
