@@ -4,7 +4,10 @@
 #    Email: wenxuangm@gmail.com
 #  Created: 2018-04-07 00:50
 #===============================================================================
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd) && cd "$SCRIPT_DIR"
+test -L "$0" &&
+    SCRIPT_DIR=$(dirname $(readlink "$0")) ||
+    SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR"
 
 if [ $(uname) = Darwin ]; then
     open_cmd='open'
@@ -15,7 +18,7 @@ elif [ $(uname) = Linux ]; then
 fi
 [ -n "$open_cmd" ] || return 1
 
-which fzf > /dev/null 2>&1 || brew reinstall --HEAD fzf || exit 1
+hash fzf &>/dev/null || exit 1
 
 ruby chrome-bookmarks-parser.rb "$bookmarks_path"  |
   fzf --ansi --multi --no-hscroll --tiebreak=begin |
