@@ -6,10 +6,11 @@ FILE = ARGV.first
 CJK  = /\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul}|[［］，。！：；（）、？《》【】　]/
 
 def build parent, json
-    name = [parent, json['name']].compact.join('/')
     if json['type'] == 'folder'
+        name = [parent, json['name']].compact.join('/')
         json['children'].map { |child| build name, child }
     else
+        name = "\e[38;5;244m\e[3m#{parent}/\e[0m" + json['name']
         { name: name, url: json['url'] }
     end
 end
@@ -33,7 +34,7 @@ def trim str, width
     str
 end
 
-width = `tput cols`.strip.to_i * 3 / 5
+width = [`tput cols`.strip.to_i * 2 / 3, 80].min
 json  = JSON.load File.read File.expand_path FILE
 items = json['roots']
     .values_at(*%w(bookmark_bar synced other))
@@ -42,8 +43,8 @@ items = json['roots']
     .flatten
 
 items.select{ |item| item[:url].start_with? 'http' }.each_with_index do |item, idx|
-    name = trim item[:name], width
+    name = trim item[:name], width + 6 # Color code occupy some spaces
     name = just name, width
     puts ["#{'%4d' % (idx + 1)} #{name}", item[:url]]
-        .join("\t\x1b[36m") + "\x1b[m"
+        .join("\t\x1b[34m") + "\x1b[m"
 end
