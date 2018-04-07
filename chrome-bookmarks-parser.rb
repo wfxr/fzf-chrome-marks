@@ -43,7 +43,7 @@ items = json['roots']
     .flatten
 
 items.select{ |item| item[:url].start_with? 'http' }.each_with_index do |item, idx|
-    name = trim item[:name], width + 6 # Color code occupy some spaces
+    name = trim item[:name], width + 2  # Color code occupy some spaces
     name = just name, width
     puts ["#{'%4d' % (idx + 1)} #{name}", item[:url]]
         .join("\t\x1b[34m") + "\x1b[m"
