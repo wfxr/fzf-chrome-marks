@@ -41,8 +41,9 @@ items = json['roots']
     .map { |e| build nil, e }
     .flatten
 
-items.each_with_index do |item, idx|
+items.select{ |item| item[:url].start_with? 'http' }.each_with_index do |item, idx|
     name = trim item[:name], width
-    puts ["#{'%4d' % (idx + 1)} #{just(name, width)}", item[:url]]
+    name = just name, width
+    puts ["#{'%4d' % (idx + 1)} #{name}", item[:url]]
         .join("\t\x1b[36m") + "\x1b[m"
 end
